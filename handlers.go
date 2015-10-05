@@ -1,10 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gorilla/sessions"
 	"html/template"
-	"log"
 	"net/http"
+	"strconv"
 )
 
 var store = sessions.NewCookieStore([]byte("hello"))
@@ -45,10 +46,8 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/", 302)
 			return
 		} else {
-			session, err := store.Get(r, "user")
-			if err != nil {
-				log.Fatal(err)
-			}
+			session, _ := store.Get(r, "user")
+
 			session.Values["logged_in"] = true
 			session.Save(r, w)
 			http.Redirect(w, r, "/home", 302)
@@ -57,16 +56,67 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func LogoutHandler(w http.ResponseWriter, r *http.Request) {
-	session, err := store.Get(r, "user")
-	if err != nil {
-		log.Fatal(err)
+func LoginHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		t, _ := template.ParseFiles("views/login.html")
+		t.Execute(w, nil)
+		return
+	} else {
+		r.ParseForm()
+		username := r.PostFormValue("username")
+		password := r.PostFormValue("password")
+		login := Login(username, password)
+		if login == true {
+			session, _ := store.Get(r, "user")
+			session.Values["logged_in"] = true
+			session.Values["username"] = username
+			session.Save(r, w)
+			http.Redirect(w, r, "/home", 302)
+			return
+		} else {
+			http.Redirect(w, r, "/login", 302)
+			return
+		}
 	}
+}
 
-	if session.Values["logged_in"] != nil {
-		session.Values["logged_in"] = nil
-	}
+func LogoutHandler(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "user")
+	session.Values["logged_in"] = nil
+	session.Values["username"] = nil
+	session.Save(r, w)
 	http.Redirect(w, r, "/", 302)
 	return
+}
+
+func NewHandler(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "user")
+	if session.Values["logged_in"] == nil {
+		http.Redirect(w, r, "/login", 302)
+		return
+	}
+
+	if r.Method == "GET" {
+		t, _ := template.ParseFiles("views/new.html")
+		t.Execute(w, nil)
+		return
+	} else if r.Method == "POST" {
+		r.ParseForm()
+		content := r.PostFormValue("content")
+		username := session.Values["username"]
+		fmt.Println(username)
+
+		st := strconv.Itoa(MakePost(content, username))
+		user := username.(string)
+		fmt.Println(st)
+		http.Redirect(w, r, "/"+user+"/"+st, 302)
+
+		return
+	}
+}
+
+func PostHandler(w http.ResponseWriter, r *http.Request) {
+	//t, _ := template.ParseFiles("views/post.html")
+	//post := Post{}
 
 }
