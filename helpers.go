@@ -5,7 +5,9 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"log"
 	"math/rand"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -18,13 +20,13 @@ type User struct {
 type Post struct {
 	Content  string
 	Username string
-	RandomID int
+	RandomID string
 }
 
 func Register(username string, password string) bool {
 	session, err := mgo.Dial("localhost")
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	defer session.Close()
 
@@ -35,13 +37,13 @@ func Register(username string, password string) bool {
 
 		pass, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 
 		err = c.Insert(&User{strings.ToLower(username), string(pass)})
 
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 		return true
 	}
@@ -51,7 +53,7 @@ func Register(username string, password string) bool {
 func Login(username string, password string) bool {
 	session, err := mgo.Dial("localhost")
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	defer session.Close()
 
@@ -69,10 +71,10 @@ func Login(username string, password string) bool {
 	return false
 }
 
-func MakePost(content string, username interface{}) int {
+func MakePost(content string, username interface{}) string {
 	session, err := mgo.Dial("localhost")
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	defer session.Close()
 
@@ -80,11 +82,24 @@ func MakePost(content string, username interface{}) int {
 	user := username.(string)
 	r := rand.NewSource(time.Now().UnixNano())
 	ra := rand.New(r)
-	id := ra.Intn(1000000)
+	i := ra.Intn(1000000)
+	id := strconv.Itoa(i)
 	fmt.Println(id)
 	err = c.Insert(&Post{content, user, id})
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	return id
+}
+
+func GetPost(id string) Post {
+	session, _ := mgo.Dial("localhost")
+	defer session.Close()
+	c := session.DB("bluebirdmini").C("posts")
+	post := Post{}
+	err := c.Find(bson.M{"randomid": id}).One(&post)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return post
 }

@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	"html/template"
 	"net/http"
-	"strconv"
+	//"strconv"
 )
 
 var store = sessions.NewCookieStore([]byte("hello"))
@@ -106,7 +107,7 @@ func NewHandler(w http.ResponseWriter, r *http.Request) {
 		username := session.Values["username"]
 		fmt.Println(username)
 
-		st := strconv.Itoa(MakePost(content, username))
+		st := MakePost(content, username)
 		user := username.(string)
 		fmt.Println(st)
 		http.Redirect(w, r, "/"+user+"/"+st, 302)
@@ -116,7 +117,11 @@ func NewHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func PostHandler(w http.ResponseWriter, r *http.Request) {
-	//t, _ := template.ParseFiles("views/post.html")
-	//post := Post{}
+	t, _ := template.ParseFiles("views/post.html")
+	id := mux.Vars(r)["id"]
+	fmt.Println(id)
+	post := GetPost(id)
+	t.Execute(w, post)
+	return
 
 }
