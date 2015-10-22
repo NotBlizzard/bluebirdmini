@@ -6,7 +6,6 @@ import (
 	"github.com/gorilla/sessions"
 	"html/template"
 	"net/http"
-	//"strconv"
 )
 
 var store = sessions.NewCookieStore([]byte("hello"))
@@ -111,7 +110,6 @@ func NewHandler(w http.ResponseWriter, r *http.Request) {
 		user := username.(string)
 		fmt.Println(st)
 		http.Redirect(w, r, "/"+user+"/"+st, 302)
-
 		return
 	}
 }
