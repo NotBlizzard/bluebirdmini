@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"golang.org/x/crypto/bcrypt"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+	"github.com/notblizzard/bluebirdmini/Godeps/_workspace/src/golang.org/x/crypto/bcrypt"
+	"github.com/notblizzard/bluebirdmini/Godeps/_workspace/src/gopkg.in/mgo.v2"
+	"github.com/notblizzard/bluebirdmini/Godeps/_workspace/src/gopkg.in/mgo.v2/bson"
 	"log"
 	"math/rand"
 	"strconv"

@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/gorilla/mux"
-	"github.com/gorilla/sessions"
+	"github.com/notblizzard/bluebirdmini/Godeps/_workspace/src/github.com/gorilla/mux"
+	"github.com/notblizzard/bluebirdmini/Godeps/_workspace/src/github.com/gorilla/sessions"
 	"html/template"
 	"net/http"
 )
